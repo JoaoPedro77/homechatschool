@@ -4,23 +4,23 @@ useHead({
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ],
   link: [
-    { rel: 'icon', href: '/favicon.png' }
+    { rel: 'icon', href: '/favicon.ico' }
   ],
   htmlAttrs: {
     lang: 'pt-br'
   }
 })
 
-const title = 'Home Chat School'
-const description = 'O lar da conversa na sua escola!'
+const title = 'Home Chat'
+const description = 'O lar da conversa!'
 
 useSeoMeta({
   title,
   description,
   ogTitle: title,
   ogDescription: description,
-  ogImage: '/favicon.png',
-  twitterImage: '/favicon.png',
+  ogImage: '/favicon.ico',
+  twitterImage: '/favicon.ico',
   twitterCard: 'summary_large_image'
 })
 </script>
@@ -36,8 +36,8 @@ useSeoMeta({
           to="/"
         >
           <LogoTexto
-            titulo="Home Chat School"
-            descricao="Mais um lar da conversa"
+            titulo="Home Chat"
+            descricao="O lar da conversa!"
             fota="favicon.png"
           />
         </NuxtLink>

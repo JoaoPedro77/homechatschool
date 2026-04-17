@@ -1,17 +1,36 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient()
 const name = ref('')
+const password = ref('')
 const login = async () => {
-  const { error } = await supabase.auth.signInAnonymously({
-    options: {
-      data: {
-        display_name: name.value
-      }
-    }
+  const { error } = await supabase.auth.signInWithPassword({
+    email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+    password: password.value
   })
   if (error) {
-    console.error('Erro no Login Anônimo:', error)
-    alert('Falha ao entrar no chat. Verifique se ativou o Login Anônimo no Supabase.')
+    console.error('Erro no Login:', error)
+    const { error: error2 } = await supabase.auth.signUp({
+      email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+      password: password.value,
+      options: {
+        data: {
+          display_name: name.value
+        }
+      }
+    })
+    if (error2) {
+      alert('Erro no Cadastro: ' + error2.message)
+      return
+    }
+    const { error: error3 } = await supabase.auth.signInWithPassword({
+      email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+      password: password.value
+    })
+    if (error3) {
+      alert('Erro no Login: ' + error3.message)
+      return
+    }
+    navigateTo('/chat')
     return
   }
 
@@ -44,6 +63,15 @@ const login = async () => {
           autofocus
           icon="solar:user-bold-duotone"
           placeholder="Insira seu usuário"
+        />
+        <UInput
+          v-model="password"
+          required
+          size="lg"
+          name="senha"
+          type="password"
+          icon="solar:lock-bold-duotone"
+          placeholder="Insira sua senha"
         />
         <UButton
           class="rounded-full justify-center"

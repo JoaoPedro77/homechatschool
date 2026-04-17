@@ -6,20 +6,20 @@ const currentUser = ref<User | null>(null)
 const novaMensagem = ref('')
 const supabase = useSupabaseClient()
 
-const scrollRef = ref<{ viewportRef: HTMLElement } | null>(null)
+const scrollArea = useTemplateRef('scrollArea')
 
-// Função para rolar para o final das mensagens
-const scrollToBottom = () => {
-  if (scrollRef.value) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const viewport = (scrollRef.value as any).viewportRef || (scrollRef.value as any).$el?.querySelector('[data-radix-scroll-area-viewport]')
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight
-    }
+function scrollToBottom() {
+  const viewport = scrollArea.value?.$el?.querySelector('[data-radix-scroll-area-viewport]')
+    ?? scrollArea.value?.$el
+
+  if (viewport) {
+    viewport.scrollTo({
+      top: viewport.scrollHeight,
+      behavior: 'smooth'
+    })
   }
 }
 
-// Inicializa o chat e busca mensagens existentes
 const inicializaChat = async () => {
   // Pega o usuário da sessão logada no Supabase
   const { data: { session } } = await supabase.auth.getSession()
@@ -37,7 +37,6 @@ const inicializaChat = async () => {
 
   if (data && !error) {
     listaMensagens.value = data as Mensagem[]
-    nextTick(scrollToBottom)
   }
 }
 
@@ -64,9 +63,9 @@ const enviarMensagem = async () => {
   }
 }
 
-onMounted(() => {
-  inicializaChat()
-
+onMounted(async () => {
+  await inicializaChat()
+  scrollToBottom()
   // Configura o Realtime para ouvir novas mensagens
   const channel = supabase
     .channel('mensagens_realtime')
@@ -96,17 +95,17 @@ onMounted(() => {
 <template>
   <div class="flex flex-col items-center justify-center min-h-0 h-[calc(100vh-64px)] w-full overflow-hidden">
     <UScrollArea
-      ref="scrollRef"
+      ref="scrollArea"
       class="w-full sm:w-[75%] lg:w-[60%] flex-1 px-4 pt-4"
     >
-      <div class="flex flex-col pb-4">
+      <div class="flex flex-col pb-1">
         <div
           v-for="item in listaMensagens"
           :key="item.id"
           :class="[
             'rounded-2xl p-3 m-2 gap-0 max-w-[80%] flex flex-col shadow-sm',
             item.user_id === currentUser?.id
-              ? 'self-end rounded-tr-none bg-primary-600 text-white'
+              ? 'self-end rounded-tr-none bg-primary-400/90 text-white'
               : 'self-start rounded-tl-none bg-neutral-500/20 dark:bg-neutral-800/40'
           ]"
         >

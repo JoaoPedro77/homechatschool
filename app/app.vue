@@ -43,7 +43,7 @@ const logout = async () => {
           <LogoTexto
             titulo="Home Chat"
             descricao="O lar da conversa!"
-            fota="favicon.png"
+            foto="favicon.png"
           />
         </NuxtLink>
       </template>

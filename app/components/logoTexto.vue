@@ -8,7 +8,7 @@ defineProps({
     type: String,
     required: true
   },
-  fota: {
+  foto: {
     type: String,
     required: true
   }
@@ -18,7 +18,7 @@ defineProps({
 <template>
   <div class="flex items-center gap-2">
     <NuxtImg
-      :src="fota"
+      :src="foto"
       alt="Logo"
       class="w-20"
     />

@@ -70,7 +70,7 @@ const login = async () => {
         <LogoTexto
           titulo="Login"
           descricao="entre no lar da conversa"
-          fota="entrar.png"
+          foto="entrar.png"
         />
       </template>
       <UForm

@@ -9,49 +9,51 @@ const login = async () => {
   if (!name.value || !password.value) return
 
   loading.value = true
+
+  const email = `${name.value.toLowerCase().trim().replace(/\s+/g, '')}@homechat.com`
+
   try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email,
       password: password.value
     })
 
-    if (error) {
-      console.error('Erro no Login:', error)
-      const { error: error2 } = await supabase.auth.signUp({
-        email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
-        password: password.value,
-        options: {
-          data: {
-            display_name: name.value
-          }
+    if (loginError) {
+      if (loginError.message === 'Invalid login credentials') {
+        const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
+          email,
+          password: password.value,
+          options: { data: { display_name: name.value } }
+        })
+
+        if (signUpError) {
+          toast.add({
+            title: 'Erro de Acesso',
+            description: signUpError.message === 'User already registered'
+              ? 'Usuário já existe. Verifique sua senha.'
+              : signUpError.message,
+            color: 'error'
+          })
+          return
         }
-      })
 
-      if (error2) {
-        toast.add({
-          title: 'Erro no Cadastro',
-          description: error2.message,
-          color: 'error'
-        })
-        return
-      }
-
-      const { error: error3 } = await supabase.auth.signInWithPassword({
-        email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
-        password: password.value
-      })
-
-      if (error3) {
-        toast.add({
-          title: 'Erro no Login',
-          description: error3.message,
-          color: 'error'
-        })
+        // Se foi e n logou, loga
+        if (!signUpData.session) {
+          await supabase.auth.signInWithPassword({ email, password: password.value })
+        }
+      } else {
+        // Outros erro
+        toast.add({ title: 'Erro de Login', description: loginError.message, color: 'error' })
         return
       }
     }
 
-    navigateTo('/chat')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      navigateTo('/chat')
+    }
+  } catch (err) {
+    console.error('Erro inesperado:', err)
   } finally {
     loading.value = false
   }

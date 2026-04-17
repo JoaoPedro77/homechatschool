@@ -21,7 +21,7 @@ function scrollToBottom() {
 }
 
 const inicializaChat = async () => {
-  // Pega o usuário da sessão logada no Supabase
+  // Pega o usuário logado
   const { data: { session } } = await supabase.auth.getSession()
   if (session?.user) {
     currentUser.value = {
@@ -40,7 +40,6 @@ const inicializaChat = async () => {
   }
 }
 
-// Envia uma nova mensagem
 const enviarMensagem = async () => {
   if (!novaMensagem.value.trim() || !currentUser.value) return
 
@@ -66,20 +65,16 @@ const enviarMensagem = async () => {
 onMounted(async () => {
   await inicializaChat()
   scrollToBottom()
-  // Configura o Realtime para ouvir novas mensagens
+  // Configura o Realtime
   const channel = supabase
     .channel('mensagens_realtime')
     .on(
       'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'mensagens'
-      },
+      { event: 'INSERT', schema: 'public', table: 'mensagens' },
       (payload) => {
-        const mensagemRecebida = payload.new as Mensagem
-        if (!listaMensagens.value.some(m => m.id === mensagemRecebida.id)) {
-          listaMensagens.value.push(mensagemRecebida)
+        const nova = payload.new as Mensagem
+        if (!listaMensagens.value.find(m => m.id === nova.id)) {
+          listaMensagens.value.push(nova)
           nextTick(scrollToBottom)
         }
       }

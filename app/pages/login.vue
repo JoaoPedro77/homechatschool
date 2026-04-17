@@ -2,39 +2,59 @@
 const supabase = useSupabaseClient()
 const name = ref('')
 const password = ref('')
+const loading = ref(false)
+const toast = useToast()
+
 const login = async () => {
-  const { error } = await supabase.auth.signInWithPassword({
-    email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
-    password: password.value
-  })
-  if (error) {
-    console.error('Erro no Login:', error)
-    const { error: error2 } = await supabase.auth.signUp({
-      email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
-      password: password.value,
-      options: {
-        data: {
-          display_name: name.value
-        }
-      }
-    })
-    if (error2) {
-      alert('Erro no Cadastro: ' + error2.message)
-      return
-    }
-    const { error: error3 } = await supabase.auth.signInWithPassword({
+  if (!name.value || !password.value) return
+
+  loading.value = true
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
       email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
       password: password.value
     })
-    if (error3) {
-      alert('Erro no Login: ' + error3.message)
-      return
-    }
-    navigateTo('/chat')
-    return
-  }
 
-  navigateTo('/chat')
+    if (error) {
+      console.error('Erro no Login:', error)
+      const { error: error2 } = await supabase.auth.signUp({
+        email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+        password: password.value,
+        options: {
+          data: {
+            display_name: name.value
+          }
+        }
+      })
+
+      if (error2) {
+        toast.add({
+          title: 'Erro no Cadastro',
+          description: error2.message,
+          color: 'error'
+        })
+        return
+      }
+
+      const { error: error3 } = await supabase.auth.signInWithPassword({
+        email: `${name.value.toLowerCase().replace(/\s+/g, '')}@homechat.com`,
+        password: password.value
+      })
+
+      if (error3) {
+        toast.add({
+          title: 'Erro no Login',
+          description: error3.message,
+          color: 'error'
+        })
+        return
+      }
+    }
+
+    navigateTo('/chat')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -79,6 +99,7 @@ const login = async () => {
           type="submit"
           label="Entrar na conversa"
           icon="solar:dialog-2-bold-duotone"
+          :loading="loading"
         />
       </UForm>
     </UPageCard>

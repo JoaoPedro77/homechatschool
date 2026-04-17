@@ -23,6 +23,11 @@ useSeoMeta({
   twitterImage: '/favicon.ico',
   twitterCard: 'summary_large_image'
 })
+const supabase = useSupabaseClient()
+const logout = async () => {
+  await supabase.auth.signOut()
+  navigateTo('/login')
+}
 </script>
 
 <template>
@@ -48,11 +53,11 @@ useSeoMeta({
 
         <UButton
           v-if="$route.path === '/chat'"
-          to="/login"
           icon="solar:logout-3-bold-duotone"
           aria-label="Logout"
           color="neutral"
           variant="ghost"
+          @click="logout"
         />
       </template>
     </UHeader>

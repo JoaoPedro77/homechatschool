@@ -26,7 +26,7 @@ const inicializaChat = async () => {
   if (session?.user) {
     currentUser.value = {
       id: session.user.id,
-      nome: session.user.user_metadata?.display_name || 'Anônimo'
+      nome: session.user.user_metadata?.display_name
     }
   }
 

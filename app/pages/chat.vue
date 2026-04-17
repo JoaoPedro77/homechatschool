@@ -74,7 +74,7 @@ onMounted(async () => {
       (payload) => {
         const nova = payload.new as Mensagem
         if (!listaMensagens.value.find(m => m.id === nova.id)) {
-          listaMensagens.value.push(nova)
+          listaMensagens.value = [...listaMensagens.value, nova]
           nextTick(scrollToBottom)
         }
       }
